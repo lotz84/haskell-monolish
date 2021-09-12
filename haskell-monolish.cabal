@@ -1,0 +1,76 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+
+name:           haskell-monolish
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/haskell-monolish#readme>
+homepage:       https://github.com/githubuser/haskell-monolish#readme
+bug-reports:    https://github.com/githubuser/haskell-monolish/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2021 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/haskell-monolish
+
+library
+  exposed-modules:
+      Monolish
+      Monolish.Raw
+      Monolish.Raw.Types
+      Monolish.Safe
+      Monolish.Types
+  other-modules:
+      Paths_haskell_monolish
+  hs-source-dirs:
+      src
+  extra-libraries:
+      monolish_cpu
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , inline-c
+    , inline-c-cpp
+    , random
+    , template-haskell
+    , vector
+  default-language: Haskell2010
+
+executable haskell-monolish-exe
+  main-is: Main.hs
+  other-modules:
+      MNIST
+      Paths_haskell_monolish
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , haskell-monolish
+    , microlens
+    , vector
+  default-language: Haskell2010
+
+test-suite haskell-monolish-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_haskell_monolish
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , haskell-monolish
+  default-language: Haskell2010
