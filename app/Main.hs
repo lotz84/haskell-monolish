@@ -122,10 +122,10 @@ mnist = do
   putStrLn $ "test data: " ++ show (V.length testXY)
 
   putStrLn "Start training"
-  bias1   <- Monolish.randomVector' @784      (-0.1) 0.1
-  weight1 <- Monolish.randomMatrix' @128 @784 (-0.1) 0.1
-  bias2   <- Monolish.randomVector' @128      (-0.1) 0.1
-  weight2 <- Monolish.randomMatrix' @10  @128 (-0.1) 0.1
+  bias1   <- Monolish.randomVector @784      (-0.1) 0.1
+  weight1 <- Monolish.randomMatrix @128 @784 (-0.1) 0.1
+  bias2   <- Monolish.randomVector @128      (-0.1) 0.1
+  weight2 <- Monolish.randomMatrix @10  @128 (-0.1) 0.1
 
   let init = (((((bias1, weight1), ()), bias2), weight2), ())
 
@@ -151,10 +151,10 @@ main = do
                   , (Monolish.fromListV [1, 1], Monolish.fromListV [1, 0])
                   ]
 
-  bias1   <- Monolish.randomVector' @2    (-1) 1
-  weight1 <- Monolish.randomMatrix' @4 @2 (-1) 1
-  bias2   <- Monolish.randomVector' @4    (-1) 1
-  weight2 <- Monolish.randomMatrix' @2 @4 (-1) 1
+  bias1   <- Monolish.randomVector @2    (-1) 1
+  weight1 <- Monolish.randomMatrix @4 @2 (-1) 1
+  bias2   <- Monolish.randomVector @4    (-1) 1
+  weight2 <- Monolish.randomMatrix @2 @4 (-1) 1
 
   let init = (((((bias1, weight1), ()), bias2), weight2), ())
       trained = train modelXOR dataset init

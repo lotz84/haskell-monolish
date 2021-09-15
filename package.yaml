@@ -29,7 +29,6 @@ library:
   - containers
   - inline-c
   - inline-c-cpp
-  - random
   - template-haskell
   - vector
 

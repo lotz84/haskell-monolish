@@ -1,4 +1,4 @@
-FROM ghcr.io/ricosjp/monolish/mkl:0.14.1
+FROM ghcr.io/ricosjp/monolish/mkl:0.14.2
 RUN apt-get update && apt-get install -y \
     gnupg \
     libc6-dev \

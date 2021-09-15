@@ -23,9 +23,7 @@ module Monolish (
   matadd,
   matsub,
   fromListV,
-  randomVector',
   fromListM,
-  randomMatrix',
   dot,
   module Monolish.Safe
 ) where
@@ -38,8 +36,6 @@ import Foreign.Ptr
 import Foreign.ForeignPtr
 import GHC.TypeLits
 import System.IO.Unsafe
-
-import System.Random
 
 import Monolish.Raw
 import Monolish.Safe (printMatrix, printVector, randomMatrix, randomVector)
@@ -115,16 +111,5 @@ matsub a b = unsafePerformIO $ Safe.matsub a b
 fromListV :: KnownNat n => [Double] -> Vector n
 fromListV = unsafePerformIO . Safe.fromListV
 
-randomVector' :: forall n. KnownNat n => Double -> Double -> IO (Vector n)
-randomVector' min max =
-  let size = fromIntegral $ natVal (Proxy @n)
-   in fmap Monolish.fromListV $ replicateM size (randomRIO (min, max))
-
 fromListM :: forall m n. (KnownNat m, KnownNat n) => [Double] -> Matrix m n
 fromListM = unsafePerformIO . Safe.fromListM
-
-randomMatrix' :: forall m n. (KnownNat m, KnownNat n) => Double -> Double -> IO (Matrix m n)
-randomMatrix' min max =
-  let height = fromIntegral $ natVal (Proxy @m)
-      width  = fromIntegral $ natVal (Proxy @n)
-   in fmap Monolish.fromListM $ replicateM (height * width) (randomRIO (min, max))
