@@ -1,8 +1,9 @@
 # haskell-monolish
-## Build Docker Image
 
-For stack docker integration.
+## Build with nix
 
 ```sh
-$ docker build -t haskell-monolish .
+$ NIXPKGS_ALLOW_UNFREE=1 nix-shell --run zsh
+% stack build --ghc-options='-j4' --extra-lib-dirs=$MONOLISH_DIR/lib --extra-include-dirs=$MONOLISH_DIR/include .
+% stack run --extra-lib-dirs=$MONOLISH_DIR/lib --extra-include-dirs=$MONOLISH_DIR/include .
 ```
