@@ -2,6 +2,7 @@
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Main where
 
@@ -87,13 +88,13 @@ instance Updatable () where
   update () () = ()
 
 instance KnownNat n => Updatable (Vector n) where
-  update v w = v + w
+  update !v !w = v + w
 
 instance Updatable (Matrix m n) where
-  update a b = a `Monolish.matadd` b
+  update !a !b = a `Monolish.matadd` b
 
 instance (Updatable a, Updatable b) => Updatable (a, b) where
-  update (a, b) (a', b') = (update a a', update b b')
+  update (!a, !b) (!a', !b') = (update a a', update b b')
 
 updateParam :: (Updatable p, KnownNat n) => ParaLens' p a (Vector n) -> a -> Vector n -> p -> p
 updateParam model a b p =
