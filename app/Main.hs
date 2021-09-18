@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE RankNTypes #-}
@@ -87,13 +88,13 @@ instance Updatable () where
   update () () = ()
 
 instance KnownNat n => Updatable (Vector n) where
-  update v w = v + w
+  update !v !w = v + w
 
 instance Updatable (Matrix m n) where
-  update a b = a `Monolish.matadd` b
+  update !a !b = a `Monolish.matadd` b
 
 instance (Updatable a, Updatable b) => Updatable (a, b) where
-  update (a, b) (a', b') = (update a a', update b b')
+  update (!a, !b) (!a', !b') = (update a a', update b b')
 
 updateParam :: (Updatable p, KnownNat n) => ParaLens' p a (Vector n) -> a -> Vector n -> p -> p
 updateParam model a b p =
@@ -115,9 +116,7 @@ mnist = do
   hSetBuffering stdout NoBuffering
 
   putStrLn "Loading data"
-  (trainXY', testXY') <- MNIST.load
-  let trainXY = V.take 3000 trainXY'
-      testXY  = V.take 1000 testXY'
+  (trainXY, testXY) <- MNIST.load
   putStrLn $ "train data: " ++ show (V.length trainXY)
   putStrLn $ "test data: " ++ show (V.length testXY)
 
