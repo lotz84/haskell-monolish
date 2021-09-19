@@ -2,6 +2,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Monolish (
   constVector,
@@ -17,12 +18,10 @@ module Monolish (
   exp,
   sum,
   eye,
-  hadamard,
   repeatRow,
   repeatCol,
-  matadd,
-  matsub,
   fromListV,
+  fromVector,
   fromListM,
   dot,
   module Monolish.Safe
@@ -34,25 +33,43 @@ import Control.Monad
 import Data.Proxy
 import Foreign.Ptr
 import Foreign.ForeignPtr
+import GHC.Exts (IsList(..))
 import GHC.TypeLits
 import System.IO.Unsafe
+
+import qualified Data.Vector.Storable as V
 
 import Monolish.Raw
 import Monolish.Safe (printMatrix, printVector, randomMatrix, randomVector)
 import qualified Monolish.Safe as Safe
 import Monolish.Types
 
-
 instance KnownNat n => Num (Vector n) where
-  x + y = unsafePerformIO $ Safe.vecadd x y
-  x * y = unsafePerformIO $ Safe.mul x y
-  abs x = unsafePerformIO $ Safe.abs x
-  signum x = unsafePerformIO $ Safe.signum x
-  fromInteger x = constVector (fromIntegral x)
-  x - y = unsafePerformIO $ Safe.vecsub x y
+  x + y  = unsafePerformIO $ Safe.vecadd x y
+  x * y  = unsafePerformIO $ Safe.mul x y
+  x - y  = unsafePerformIO $ Safe.vecsub x y
+  abs    = unsafePerformIO . Safe.abs
+  signum = unsafePerformIO . Safe.signum
+  fromInteger = constVector . fromIntegral
+
+instance KnownNat n => IsList (Vector n) where
+  type Item (Vector n) = Double
+  fromList = fromListV
+  toList = unsafePerformIO . Safe.toList
+
+instance (KnownNat m, KnownNat n) => Num (Matrix m n) where
+  x + y  = unsafePerformIO $ Safe.matadd x y
+  x * y  = unsafePerformIO $ Safe.hadamard x y
+  x - y  = unsafePerformIO $ Safe.matsub x y
+  abs    = unsafePerformIO . Safe.matabs
+  signum = unsafePerformIO . Safe.matsignum
+  fromInteger = constMatrix . fromIntegral
 
 constVector :: forall n. KnownNat n => Double -> Vector n
 constVector = unsafePerformIO . Safe.constVector
+
+constMatrix :: forall m n. (KnownNat m, KnownNat n) => Double -> Matrix m n
+constMatrix = unsafePerformIO . Safe.constMatrix
 
 max :: Vector n -> Vector n -> Vector n
 max x y = unsafePerformIO $ Safe.max x y
@@ -102,14 +119,11 @@ repeatRow = unsafePerformIO . Safe.repeatRow
 repeatCol :: KnownNat n => Vector m -> Matrix m n
 repeatCol = unsafePerformIO . Safe.repeatCol
 
-matadd :: Matrix m n -> Matrix m n -> Matrix m n
-matadd a b = unsafePerformIO $ Safe.matadd a b
-
-matsub :: Matrix m n -> Matrix m n -> Matrix m n
-matsub a b = unsafePerformIO $ Safe.matsub a b
-
 fromListV :: KnownNat n => [Double] -> Vector n
 fromListV = unsafePerformIO . Safe.fromListV
+
+fromVector :: KnownNat n => V.Vector Double -> Vector n
+fromVector = unsafePerformIO . Safe.fromVector
 
 fromListM :: forall m n. (KnownNat m, KnownNat n) => [Double] -> Matrix m n
 fromListM = unsafePerformIO . Safe.fromListM

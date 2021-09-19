@@ -48,6 +48,9 @@ library
 executable haskell-monolish-exe
   main-is: Main.hs
   other-modules:
+      DNN
+      Example.MNIST
+      Example.XOR
       MNIST
       Paths_haskell_monolish
   hs-source-dirs:
@@ -56,6 +59,7 @@ executable haskell-monolish-exe
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , directory
     , haskell-monolish
     , microlens
     , vector

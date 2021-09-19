@@ -100,6 +100,12 @@ monolish_blas_dot_vector_double_vector_double va vb =
     return monolish::blas::dot(*$(monolish::vector<double>* va), *$(monolish::vector<double>* vb));
   }|]
 
+monolish_matrix_dense_double_sizet_sizet_double :: CSize -> CSize -> CDouble -> IO (Ptr (M CDouble))
+monolish_matrix_dense_double_sizet_sizet_double m n value =
+  [C.throwBlock| monolish::matrix::Dense<double>* {
+    return new monolish::matrix::Dense<double>($(size_t m), $(size_t n), $(double value));
+  }|]
+
 monolish_matrix_dense_double_sizet_sizet_double_double :: CSize -> CSize -> CDouble -> CDouble -> IO (Ptr (M CDouble))
 monolish_matrix_dense_double_sizet_sizet_double_double m n min max =
   [C.throwBlock| monolish::matrix::Dense<double>* {
@@ -194,11 +200,7 @@ haskell_monolish_signum_vector_double_vector_double v =
     double* a = $(monolish::vector<double>* v)->data() + $(monolish::vector<double>* v)->get_offset();
     double* y = ans->data() + ans->get_offset();
     for (size_t i = 0; i < N; i++)
-      if (a[i] >= 0) {
-        y[i] = 1;
-      } else {
-        y[i] = -1;
-      }
+      y[i] = a[i] >= 0 ? 1 : -1;
     return ans;
   }|]
 
@@ -268,6 +270,14 @@ haskell_monolish_fromlistv vec =
     return ans;
   }|]
 
+haskell_monolish_vector_copy :: CSize -> Ptr (V CDouble) -> Ptr CDouble -> IO ()
+haskell_monolish_vector_copy n vec array =
+  [C.throwBlock| void {
+    double* a = $(monolish::vector<double>* vec)->data() + $(monolish::vector<double>* vec)->get_offset();
+    for (size_t i = 0; i < $(size_t n); i++)
+      $(double* array)[i] = a[i];
+  }|]
+
 haskell_monolish_fromlistm :: CInt -> CInt -> VM.IOVector CDouble -> IO (Ptr (M CDouble))
 haskell_monolish_fromlistm m n vec =
   [C.throwBlock| monolish::matrix::Dense<double>* {
@@ -276,5 +286,33 @@ haskell_monolish_fromlistm m n vec =
     double* y = ans->val.data();
     for (size_t i = 0; i < $(int m) * $(int n); i++)
       y[i] = $vec-ptr:(double *vec)[i];
+    return ans;
+  }|]
+
+haskell_monolish_matabs :: Ptr (M CDouble) -> IO (Ptr (M CDouble))
+haskell_monolish_matabs mat =
+  [C.throwBlock| monolish::matrix::Dense<double>* {
+    size_t rows = $(monolish::matrix::Dense<double>* mat)->get_row();
+    size_t cols = $(monolish::matrix::Dense<double>* mat)->get_col();
+    size_t size = rows * cols;
+    monolish::matrix::Dense<double>* ans = new monolish::matrix::Dense<double>(rows, cols);
+    double* x = $(monolish::matrix::Dense<double>* mat)->val.data();
+    double* y = ans->val.data();
+    for (size_t i = 0; i < size; i++)
+      y[i] = std::abs(x[i]);
+    return ans;
+  }|]
+
+haskell_monolish_matsignum :: Ptr (M CDouble) -> IO (Ptr (M CDouble))
+haskell_monolish_matsignum mat =
+  [C.throwBlock| monolish::matrix::Dense<double>* {
+    size_t rows = $(monolish::matrix::Dense<double>* mat)->get_row();
+    size_t cols = $(monolish::matrix::Dense<double>* mat)->get_col();
+    size_t size = rows * cols;
+    monolish::matrix::Dense<double>* ans = new monolish::matrix::Dense<double>(rows, cols);
+    double* x = $(monolish::matrix::Dense<double>* mat)->val.data();
+    double* y = ans->val.data();
+    for (size_t i = 0; i < size; i++)
+      y[i] = x[i] >= 0 ? 1 : -1;
     return ans;
   }|]
